@@ -1,0 +1,103 @@
+image: veracode/scm-packaging:3.0.0
+
+pipelines:
+  default:
+    - step:
+        name: Auto Package
+        script:
+          - export ARTIFACTS_FOLDER="veracode-artifacts"
+          - mkdir -p clonePath
+          - cd clonePath
+          - git clone --branch ${SOURCE_BRANCH} https://${USER_NAME}:${APP_PWD}@${CLONE_URL}
+          - cd $(basename -s .git ${CLONE_URL})
+          - git pull
+          - cd ../../
+          - curl -sSO ${CLI_DOWNLOAD_URL}
+          - tar -xvf veracode-cli_${CLI_VERSION}_linux_x86.tar.gz
+          - mv veracode-cli_${CLI_VERSION}_linux_x86 ${CLI_FOLDER}
+          - mkdir -p $ARTIFACTS_FOLDER
+          - ./${CLI_FOLDER}/veracode package --source clonePath/* --output $ARTIFACTS_FOLDER --trust --debug
+          - echo "Contents of ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - pwd
+          - ls -la
+        artifacts:
+          - veracode-artifacts/**
+
+    - step:
+        name: Veracode Pipeline Scan
+        script:
+          - export ARTIFACTS_FOLDER="/opt/atlassian/pipelines/agent/build/veracode-artifacts"
+          - echo "Checking artifact contents in $ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - if [ "$EXECUTE_PIPELINE" = "true" ]; then
+              npm i;
+              node ./veracodeScan.js;
+            fi
+        artifacts:
+          - veracode-artifacts/**
+
+    - step:
+        name: Veracode Policy Scan
+        script:
+          - export ARTIFACTS_FOLDER="/opt/atlassian/pipelines/agent/build/veracode-artifacts"
+          - echo "Checking artifact contents in $ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - if [ "$EXECUTE_POLICY" = "true" ]; then
+              npm i;
+              node ./veracodeScan.js;
+            fi
+        artifacts:
+          - veracode-artifacts/**
+
+    - step:
+        name: Veracode Sandbox Scan
+        script:
+          - export ARTIFACTS_FOLDER="/opt/atlassian/pipelines/agent/build/veracode-artifacts"
+          - echo "Checking artifact contents in $ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - if [ "$EXECUTE_SANDBOX" = "true" ]; then
+              npm i;
+              node ./veracodeScan.js;
+            fi
+        artifacts:
+          - veracode-artifacts/**
+
+    - step:
+        name: Veracode Remove Sandbox
+        script:
+          - export ARTIFACTS_FOLDER="/opt/atlassian/pipelines/agent/build/veracode-artifacts"
+          - echo "Checking artifact contents in $ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - if [ "$EXECUTE_REMOVE_SANDBOX" = "true" ]; then
+              npm i;
+              node ./veracodeScan.js;
+            fi
+        artifacts:
+          - veracode-artifacts/**
+
+    - step:
+        name: Veracode SCA Scan
+        script:
+          - export ARTIFACTS_FOLDER="/opt/atlassian/pipelines/agent/build/veracode-artifacts"
+          - echo "Checking artifact contents in $ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - if [ "$EXECUTE_SCA" = "true" ]; then
+              npm i;
+              node ./veracodeScan.js;
+            fi
+        artifacts:
+          - veracode-artifacts/**
+
+    - step:
+        name: Veracode IaC Scan
+        script:
+          - export ARTIFACTS_FOLDER="/opt/atlassian/pipelines/agent/build/veracode-artifacts"
+          - echo "Checking artifact contents in $ARTIFACTS_FOLDER:"
+          - ls -la $ARTIFACTS_FOLDER
+          - if [ "$EXECUTE_IAC" = "true" ]; then
+              npm i;
+              node ./veracodeScan.js;
+            fi
+        artifacts:
+          - veracode-artifacts/**

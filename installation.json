@@ -1,0 +1,6 @@
+{
+    "vc-user-installation-token": "410f16e0-07ba-4cdc-a1f9-183a06fc4868",
+    "webhook-url": "https://api-agora-stage-132.stage.veracode.io/gitlab/backend/event",
+    "vc-veracode-project-id": 62861484,
+    "release_version": "1.0.0"
+}
